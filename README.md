@@ -99,7 +99,8 @@ It should show venv in the cli prompt, e.g. `(venv) tcm secure-agent-augmentatio
 8. **Create Public and Private keys**
 We will upload the private key into the auth server, and that dude will be using the private key to sign the (JWT) tokens that it will be issuing to the clients, which the clients could use to verify the authenticity of the tokens. (this is an added layer of security provided by the oauth2.0 RFC that we are implementing here)
     - For LOCAL:
-        - Create a private/public key. [Example](https://help.dreamhost.com/hc/en-us/articles/115001736671-Creating-a-new-Key-pair-in-Mac-OS-X-or-Linux)
+        - Create a private/public key. See [creating keys for JWT signing](docs/Creating_Keys_For_JWT_Signing.md)
+
         - Place those (JWT) private/public keys in:
      - `~/.ssh/jwt_private_key.pem`
      - `~/.ssh/jwt_public_key.pem`
@@ -189,6 +190,22 @@ async def async_workflow():
 3. Commit your changes (`git commit -m 'Add feature'`).
 4. Push to the branch (`git push origin feature-name`).
 5. Create a Pull Request.
+
+- Create clients using the admin UI or admin API. The `client_id` and `client_secret` generated can be used by another system (the OAuth2 client) to request tokens.
+
+## JWT Keys and Deployment
+
+- **Local**: Keys in `~/.ssh/`
+- **Heroku/Snowflake**: Keys in environment variables `JWT_PRIVATE_KEY` and `JWT_PUBLIC_KEY`.
+
+Ensure keys are properly generated as shown above and stored securely. On production environments like Heroku or Snowflake, never commit keys to source control; only set them via environment variables.
+
+## Additional Notes
+
+- The code is environment-agnostic: it detects `ENVIRONMENT` and configures database and JWT keys accordingly.
+- `DATABASE_URL` is used for Heroku Postgres.
+- For Snowflake, all required Snowflake credentials must be in environment variables.
+- The resource endpoints (`/protected`, `/protected_post`, `/highly_confidential`, etc.) rely on scopes included in the JWT `scope` claim. The token issuing process (via `/token` endpoint) must include appropriate scopes. The admin can configure clients with the desired scopes.
 
 ## License
 [MIT](LICENSE)
