@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 ENV = os.getenv("ENVIRONMENT", "local").lower()
-
 TOKEN_EXPIRY_SECONDS = int(os.getenv("TOKEN_EXPIRY_SECONDS", 3600))
 
 if ENV == "local":
@@ -13,7 +12,7 @@ if ENV == "local":
     POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
     POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
     POSTGRES_DB = os.getenv("POSTGRES_DB", "local_db")
-    DATABASE_URL = f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+    DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 
 elif ENV == "heroku":
     heroku_db_url = os.getenv("DATABASE_URL")

@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypass
+      POSTGRES_DB: oauthdb
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "myuser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth_server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.auth_server
+    environment:
+      DB_TYPE: postgresql
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypass
+      POSTGRES_HOST: db
+      POSTGRES_DB: oauthdb
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  admin_app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.admin_app
+    environment:
+      DB_TYPE: postgresql
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypass
+      POSTGRES_HOST: db
+      POSTGRES_DB: oauthdb
+    ports:
+      - "8501:8501"
+    depends_on:
+      - db

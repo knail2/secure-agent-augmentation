@@ -1,0 +1,25 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies including supervisor
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential curl libpq-dev supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY src/ /app/src/
+COPY docker/supervisord_admin.conf /etc/supervisor/conf.d/supervisord_admin.conf
+
+# Expose the ports
+# Admin Flask API on 9000
+EXPOSE 9000
+# Streamlit UI on 8501
+EXPOSE 8501
+
+ENV GUNICORN_WORKERS=2
+
+# supervisor will run both gunicorn for admin API and streamlit UI
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord_admin.conf"]

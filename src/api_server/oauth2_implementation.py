@@ -1,40 +1,41 @@
-from fastapi import APIRouter, Request, Form
-from fastapi.responses import JSONResponse
+from flask import Blueprint, request, jsonify
+from sqlalchemy.orm import scoped_session
 from sqlalchemy.future import select
 from authlib.jose import jwk
 from .security import authorization_server, validate_jwt_token, JWT_PUBLIC_KEY
 from .database import SessionLocal
 from .models import OAuth2Token
 
-router = APIRouter()
+bp = Blueprint('oauth2', __name__)
 
-@router.post("/token")
-async def token_endpoint(request: Request):
+@bp.route("/token", methods=["POST"])
+def token_endpoint():
     # grant_type=client_credentials expected
-    return await authorization_server.create_token_response(request)
+    return authorization_server.create_token_response(request)
 
-@router.post("/introspect")
-async def introspect(token: str = Form(...)):
-    claims = await validate_jwt_token(token)
+@bp.route("/introspect", methods=["POST"])
+def introspect():
+    token = request.form.get("token")
+    claims = validate_jwt_token(token)
     if claims:
-        return {"active": True, "scope": claims.get("scope", "")}
+        return jsonify({"active": True, "scope": claims.get("scope", "")})
     else:
-        return {"active": False}
+        return jsonify({"active": False})
 
-@router.post("/revoke")
-async def revoke_token(token: str = Form(...)):
-    async with SessionLocal() as db:
-        q = await db.execute(select(OAuth2Token).where(OAuth2Token.access_token == token))
-        t = q.scalar_one_or_none()
+@bp.route("/revoke", methods=["POST"])
+def revoke():
+    token = request.form.get("token")
+    db = SessionLocal()
+    try:
+        t = db.query(OAuth2Token).filter_by(access_token=token).first()
         if t:
-            await db.delete(t)
-            await db.commit()
-    return {"status": "ok"}
+            db.delete(t)
+            db.commit()
+    finally:
+        db.close()
+    return jsonify({"status": "ok"})
 
-@router.get("/jwks")
-async def jwks_endpoint():
-    # Convert the public key from PEM to JWK format
-    # Authlib jwk.dumps can take a public_key in PEM format and produce JWK
+@bp.route("/jwks", methods=["GET"])
+def jwks_endpoint():
     public_jwk = jwk.dumps(JWT_PUBLIC_KEY, kty='RSA')
-    # Return the JWKS
-    return JSONResponse(content={"keys": [public_jwk]})
+    return jsonify({"keys": [public_jwk]})

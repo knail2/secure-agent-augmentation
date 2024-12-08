@@ -33,54 +33,57 @@ I see the need for this framework because all common and new agent framework pro
 **Secure Agent Augmentation** represents a secure, versatile framework for enhancing the capabilities of AI agents through providing a safe, authenticated and scalable runtime execution for external actions, and in the future, executing multi-agent framework tasks. 
 
 ## Directory Structure
-
+```
 project_root/
-├─ .env                          # Env vars (DB configs, environment type, token expiry) <--in .gitignore, so you wont find it here.
-├─ requirements.txt              # Python dependencies
-├─ docker/                       # Docker related configs and Compose
-│  ├─ Dockerfile.api_server      # Dockerfile for API server container
-│  ├─ Dockerfile.admin_app       # Dockerfile for Admin app container
-│  ├─ docker-compose.yml         # Orchestration file
+├─ .env                             # Env vars ; in .gitignore
+├─ requirements.txt                 # Python dependencies
+├─ docker/                          # Docker related configs and Compose
+│  ├─ Dockerfile.api_server         # Dockerfile for API server container
+│  ├─ Dockerfile.admin_app          # Dockerfile for Admin app container
+│  ├─ docker-compose.yml            # Orchestration file
 ├─ src/
-│  ├─ api_server/                # Main OAuth2 authorization server and resource endpoints
-│  │  ├─ main.py                 # FastAPI entry point, route inclusion
-│  │  ├─ config.py               # Env detection, DB URLs, token expiry
-│  │  ├─ database.py             # Async SQLAlchemy setup
-│  │  ├─ models.py               # DB models for clients, tokens
-│  │  ├─ schemas.py              # Pydantic schemas
-│  │  ├─ security.py             # Authlib integration, JWT signing/verification w/ env-based key loading
-│  │  ├─ middleware.py           # Logging and token validation middleware
-│  │  ├─ utils.py                # General utilities
-│  │  ├─ constants.py            # Available scopes
-│  │  ├─ oauth2_implementation.py# OAuth2 endpoints: /token, /introspect, /revoke
-│  │  ├─ logging_conf.py         # Logging config
-│  │  └─ routers/                # Resource endpoints organized by groups
+│  ├─ api_server/                   # Flask-based OAuth2 server + resource endpoints
+│  │  ├─ __init__.py                # Makes api_server a package
+│  │  ├─ main.py                   # Entry point for Flask app
+│  │  ├─ config.py                 # Env detection, DB URLs, token expiry
+│  │  ├─ database.py               # Sync SQLAlchemy setup
+│  │  ├─ models.py                 # DB models
+│  │  ├─ schemas.py                # Pydantic-like schemas (optional) or dataclasses
+│  │  ├─ security.py               # Authlib OAuth2 integration, JWT logic
+│  │  ├─ utils.py                  # Utilities
+│  │  ├─ constants.py              # Available scopes
+│  │  ├─ oauth2_implementation.py  # Flask blueprint with /token, /introspect, /revoke, /jwks
+│  │  ├─ logging_conf.py           # Logging configuration
+│  │  ├─ templates/
+│  │  │  ├─ admin_gui.html
+│  │  ├─ admin/
+│  │  │  ├─ api/
+│  │  |  │  ├─ endpoints.py     # Flask-based admin API (password protected)
+│  │  |  └─ gui/
+│  │  |     ├─ endpoints.py     # Flask-based GUI (password protected)
+│  │  └─ routers/                  # Resource endpoints as separate blueprints
 │  │     ├─ auth_testing/
 │  │     │  ├─ endpoints.py
-│  │     ├─ release_oversight/
+│  │     ├─ release_oversight/          # wip
 │  │     │  ├─ endpoints.py
-│  │     ├─ service_ticket_analysis/
+│  │     ├─ service_ticket_analysis/    # wip
 │  │     │  ├─ endpoints.py
-│  │     ├─ tableau_dashboard_usage/
+│  │     ├─ tableau_dashboard_usage/    # wip
 │  │     │  ├─ endpoints.py
-│  │     ├─ internal_audit_analysis/
+│  │     ├─ internal_audit_analysis/    # wip
 │  │     │  ├─ endpoints.py
-│  │     ├─ slack_analysis/
+│  │     ├─ slack_analysis/             # wip
 │  │     │  ├─ endpoints.py
-│  │     ├─ common_actions/
+│  │     ├─ common_actions/             # wip
 │  │     │  ├─ endpoints.py
-│  ├─ admin_app/
-│  │  ├─ app.py         # Streamlit UI
-│  │  ├─ admin_api.py   # Admin REST API for client management
-│  │  ├─ schemas.py     # Admin-specific schemas if needed
-│  │  ├─ utils.py       
 │  ├─ oauth_client/
-│  │  ├─ client.py      # Python client code, adjusts based on ENVIRONMENT
+│  │  ├─ client.py
 │  ├─ common/
-│  │  ├─ utils.py       
+│  │  ├─ utils.py
 │  ├─ python_notebooks/
-│  │  ├─ admin_and_client_demo.ipynb # Notebook demonstrating usage
-└─ README.md                     # this file (includes) Setup instructions
+│  │  ├─ admin_and_client_demo.ipynb    # Notebook demonstrating usage
+└─ README.md
+```
 
 
 ## Setup
@@ -124,7 +127,13 @@ TOKEN_EXPIRY_SECONDS=3600
 10. Run the server (locally)
 ``uvicorn src.api_server.main:app –reload``
 
-11. (for localhost testing only) Run Jupyter Lab: `jupyter lab` and switch to notebooks/ to test the various APIs in this run-time framework.
+11. (for localhost testing only) Run Jupyter Lab: `jupyter lab` and fire up `notebooks/admin_and_client_demo.ipynb` to test the various APIs in this run-time framework.
+
+12. Running the server on Docker :construction:
+
+## :construction: Deploying on Heroku
+
+- the main branch has Procfile which deploys the api_server code to the heroku repo
 
 ## :construction: Security Guidelines
 *I need to flesh this out with a standard approach on how scopes can be used for external AI actions. There are no standards defined on the internet, so I'll have to come up with some abstractions myself. Stay tuned*

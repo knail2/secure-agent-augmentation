@@ -1,0 +1,29 @@
+FROM python:3.11-slim
+
+# Set work directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential curl libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application code
+COPY src/ /app/src/
+
+# We expect .env and keys to be provided outside or via docker-compose env vars
+# ENV variables like ENVIRONMENT, TOKEN_EXPIRY_SECONDS, ISSUER_URL, etc. will be set by docker-compose or the environment
+
+# Expose the port the app will run on
+EXPOSE 8000
+
+# Gunicorn settings:
+# -b 0.0.0.0:8000 binds to port 8000
+# -w 4 uses 4 worker processes
+ENV GUNICORN_WORKERS=4
+
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "-w", "4", "src.api_server.main:app"]
