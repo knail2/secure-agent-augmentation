@@ -6,7 +6,7 @@
 ![SAAF Architecture](images/SAAF-architecture.jpg)
 
 The framework is expected to be deployed in a run-time environment, and includes
-- **AuthN/AuthZ** Implements OpenID with OAuth 2.0 for user authentication and authorization, with granular scopes for controlling access to specific actions and data for calling agents
+- **AuthN/AuthZ** Implements OAuth 2.0 for user authentication and authorization, with granular scopes for controlling access to specific actions and data for calling agents
 - **Secure External Actions** wrapped up in fully contained APIs, which double as libraries for agents executing locally in the runtime.
     - **RAG**: To support API data which can bust the input context of LLMs, chunking and vectorization for that data will be supported
     - **Semantic Layer**: For external actions which call data warehouses, a semantic layer (in the form of locally stored yaml/json) for each useful field within database table is stored
