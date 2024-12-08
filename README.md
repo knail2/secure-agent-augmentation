@@ -32,58 +32,118 @@ I see the need for this framework because all common and new agent framework pro
 
 **Secure Agent Augmentation** represents a secure, versatile framework for enhancing the capabilities of AI agents through providing a safe, authenticated and scalable runtime execution for external actions, and in the future, executing multi-agent framework tasks. 
 
-## Getting Started (WIP)
+## Directory Structure
 
-### Prerequisites
-- Python 3.9 or higher
-- Docker
-- multiple libraries (check out requirements.txt)
+project_root/
+├─ .env                          # Env vars (DB configs, environment type, token expiry) <--in .gitignore, so you wont find it here.
+├─ requirements.txt              # Python dependencies
+├─ docker/                       # Docker related configs and Compose
+│  ├─ Dockerfile.api_server      # Dockerfile for API server container
+│  ├─ Dockerfile.admin_app       # Dockerfile for Admin app container
+│  ├─ docker-compose.yml         # Orchestration file
+├─ src/
+│  ├─ api_server/                # Main OAuth2 authorization server and resource endpoints
+│  │  ├─ main.py                 # FastAPI entry point, route inclusion
+│  │  ├─ config.py               # Env detection, DB URLs, token expiry
+│  │  ├─ database.py             # Async SQLAlchemy setup
+│  │  ├─ models.py               # DB models for clients, tokens
+│  │  ├─ schemas.py              # Pydantic schemas
+│  │  ├─ security.py             # Authlib integration, JWT signing/verification w/ env-based key loading
+│  │  ├─ middleware.py           # Logging and token validation middleware
+│  │  ├─ utils.py                # General utilities
+│  │  ├─ constants.py            # Available scopes
+│  │  ├─ oauth2_implementation.py# OAuth2 endpoints: /token, /introspect, /revoke
+│  │  ├─ logging_conf.py         # Logging config
+│  │  └─ routers/                # Resource endpoints organized by groups
+│  │     ├─ auth_testing/
+│  │     │  ├─ endpoints.py
+│  │     ├─ release_oversight/
+│  │     │  ├─ endpoints.py
+│  │     ├─ service_ticket_analysis/
+│  │     │  ├─ endpoints.py
+│  │     ├─ tableau_dashboard_usage/
+│  │     │  ├─ endpoints.py
+│  │     ├─ internal_audit_analysis/
+│  │     │  ├─ endpoints.py
+│  │     ├─ slack_analysis/
+│  │     │  ├─ endpoints.py
+│  │     ├─ common_actions/
+│  │     │  ├─ endpoints.py
+│  ├─ admin_app/
+│  │  ├─ app.py         # Streamlit UI
+│  │  ├─ admin_api.py   # Admin REST API for client management
+│  │  ├─ schemas.py     # Admin-specific schemas if needed
+│  │  ├─ utils.py       
+│  ├─ oauth_client/
+│  │  ├─ client.py      # Python client code, adjusts based on ENVIRONMENT
+│  ├─ common/
+│  │  ├─ utils.py       
+│  ├─ python_notebooks/
+│  │  ├─ admin_and_client_demo.ipynb # Notebook demonstrating usage
+└─ README.md                     # this file (includes) Setup instructions
 
-### Installation (WIP)
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/knail2/secure-agent-augmentation.git
-   cd secure-agent-framework
-   ```
+## Setup
 
-2. **Install Dependencies**: (recommended to do this step in a virtual environment, see below jupyter notebook setup)
-   ```bash
-   pip install -r requirements.txt
-   ```
+1. [Install](https://www.python.org/downloads/) Python on your computer. *Recommended versions are 3.9.x through 3.11.x, Some snowflake libraries balk with 3.12*
 
-3. **Run the Application**:
-   ```bash
-   uvicorn app.main:app --reload
-   ```
-   By default, this runs the server on `http://127.0.0.1:8000`.
+2. [Install](https://docs.docker.com/desktop/) Docker on your computer
+3. **Clone** the Repository: `git clone https://github.com/knail2/secure-agent-augmentation.git`
+
+4. **Switch** into the directory: `cd secure-agent-framework`
+5. Create a **virtual environment**: `python -m venv venv`
+We do this so that the libraries are safely installed for the context of this project, and don't mess with potentially the same libraries installed globally on your machine. We use the python [virtual environment](https://docs.python.org/3/library/venv.html) concept.
+6. **Activate** the virtual environment: `. ./venv/bin/activate`.
+It should show venv in the cli prompt, e.g. `(venv) tcm secure-agent-augmentation$ `
+7. Install required **libraries** into this env: `pip install -r requirements.txt`
+8. **Create Public and Private keys**
+We will upload the private key into the auth server, and that dude will be using the private key to sign the (JWT) tokens that it will be issuing to the clients, which the clients could use to verify the authenticity of the tokens. (this is an added layer of security provided by the oauth2.0 RFC that we are implementing here)
+    - For LOCAL:
+        - Create a private/public key. [Example](https://help.dreamhost.com/hc/en-us/articles/115001736671-Creating-a-new-Key-pair-in-Mac-OS-X-or-Linux)
+        - Place those (JWT) private/public keys in:
+     - `~/.ssh/jwt_private_key.pem`
+     - `~/.ssh/jwt_public_key.pem`
+
+    -  For hosted environments like AWS, HEROKU or SNOWFLAKE:
+        - Put these keys in environment variables:
+            - `JWT_PRIVATE_KEY`
+            - `JWT_PUBLIC_KEY`
+    directly in [AWS](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/taskdef-envfiles.html), [Heroku](https://devcenter.heroku.com/articles/config-vars) or [Snowflake](https://docs.snowflake.com/developer-guide/snowpark-container-services/additional-considerations-services-jobs?utm_cta=website-webinars-vhol-feature).
+
+9. Set up local environments using this `.env`  example:
+(I don't upload .env to github obviously! see my .gitignore)
+ENVIRONMENT=local
+POSTGRES_USER=local_user
+POSTGRES_PASSWORD=local_password
+POSTGRES_DB=local_db
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+TOKEN_EXPIRY_SECONDS=3600
+
+10. Run the server (locally)
+``uvicorn src.api_server.main:app –reload``
+
+11. (for localhost testing only) Run Jupyter Lab: `jupyter lab` and switch to notebooks/ to test the various APIs in this run-time framework.
+
+## :construction: Security Guidelines
+*I need to flesh this out with a standard approach on how scopes can be used for external AI actions. There are no standards defined on the internet, so I'll have to come up with some abstractions myself. Stay tuned*
+
+- **OAuth 2.0 Scopes**: Fine-tune access control by assigning different scopes to each API endpoint.
+- **Secure Defaults**: All actions require an OAuth token for access.
 
 
-### Getting Jupyter Notebooks to work on your computer
+### :construction: Example Usage (WIP)
 
-This section explains how to install the pre-requisite libraries so that you can use the notebooks within this book. So that the libraries are safely installed for the context of this book, we use the python [virtual environment](https://docs.python.org/3/library/venv.html) concept.
-
-
-
-1. [Install](https://www.python.org/downloads/) Python on your computer. Recommended versions are 3.9 through 3.12
-2. Clone the repository: `git clone https://github.com/victordibia/multiagent-systems-with-autogen.git`
-3. Go into the directory: `cd multiagent-systems-with-autogen`
-4. Create a virtual environment: `python -m venv venv`
-5. Activate the virtual environment: `. ./venv/bin/activate` 
-6. Install the required libraries into this environment: `pip install -r requirements.txt`
-7. Run Jupyter Lab: `jupyter lab`
-8. Within Jupyter Lab, change directories into the respective chapter and open the python notebooks.
-
-
-### Example Usage
+*All the stuff in this section is in construction, the info below is random GPT generated stuff, it doesn't work.
+I'll come back and fix it up*
 
 - **Register an Action**: Create AI agent actions accessible via REST endpoints.
 - **Control Access with OAuth 2.0 Scopes**: Limit who can call actions, and what data they have access to, using fine-grained scopes.
 - **Multi-Agent Asynchronous Workflow**: Trigger a complex action that involves multiple agents working together, asynchronously.
 
-### Sample API Endpoint
+#### :construction: Creating authenticated API Endpoints (WIP)
 
-To create a simple AI action, add a new endpoint:
+To create a simple authenticated AI action, add a new endpoint:
 
 ```python
 from fastapi import APIRouter, Depends
@@ -97,7 +157,7 @@ async def run_action(token: str = Depends(oauth2_scheme)):
     return {"message": "Action executed successfully."}
 ```
 
-### Multi-Agent Asynchronous Workflow Example
+#### :construction: Multi-Agent Asynchronous Workflow Example (WIP)
 
 Here is an example of triggering an asynchronous multi-agent workflow:
 
@@ -121,9 +181,6 @@ async def async_workflow():
     print("Workflow completed, posting results.")
 ```
 
-## Security
-- **OAuth 2.0 Scopes**: Fine-tune access control by assigning different scopes to each API endpoint.
-- **Secure Defaults**: All actions require an OAuth token for access.
 
 ## Contributing
 
@@ -138,3 +195,6 @@ async def async_workflow():
 
 ## Contact
 Feel free to open an issue or pull request if you encounter any problems or have a feature request.
+
+Thanks!
+Omer.

@@ -1,3 +1,10 @@
 fastapi
+uvicorn
 streamlit
 authlib
+python-dotenv
+sqlalchemy
+asyncpg
+requests
+talisman
+jinja2
