@@ -5,6 +5,7 @@ load_dotenv()
 
 ENV = os.getenv("ENVIRONMENT", "local").lower()
 TOKEN_EXPIRY_SECONDS = int(os.getenv("TOKEN_EXPIRY_SECONDS", 3600))
+ISSUER_URL = os.getenv("ISSUER_URL", "http://localhost:8000")
 
 if ENV == "local":
     POSTGRES_USER = os.getenv("POSTGRES_USER", "local_user")

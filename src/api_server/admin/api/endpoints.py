@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request
 from sqlalchemy.orm import sessionmaker
-from ....database import SessionLocal
-from ....models import OAuth2Client, ClientState
-from ....utils import require_admin_auth
+from src.api_server.database import SessionLocal
+from src.api_server.models import OAuth2Client, ClientState
+from src.api_server.utils import require_admin_auth
 from uuid import uuid4
 
 admin_api_bp = Blueprint('admin_api', __name__, url_prefix='/admin/api')

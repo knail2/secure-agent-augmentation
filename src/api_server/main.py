@@ -1,4 +1,6 @@
-import logging
+import logging  # Refers to the standard library module 
+import os
+from .logging_conf import setup_logging
 from flask import Flask, request
 from talisman import Talisman
 from .config import ENV
@@ -16,7 +18,7 @@ def create_app():
     app = Flask(__name__)
 
     with engine.connect() as conn:
-        Base.metadata.drop_all(bind=engine)
+        #Base.metadata.drop_all(bind=engine)
         Base.metadata.create_all(bind=engine)
 
     authorization_server.init_app(app)
@@ -61,3 +63,19 @@ def create_app():
     return app
 
 app = create_app()
+
+
+if __name__ == "__main__":
+    # Local development server
+    setup_logging()
+    logger.info("Starting Flask application locally...")
+    
+    # Create the app
+    app = create_app()
+
+    # Determine the host and port from environment variables or default to localhost:5000
+    host = os.getenv("FLASK_RUN_HOST", "127.0.0.1")
+    port = int(os.getenv("FLASK_RUN_PORT", 5000))
+
+    # Run the server in development mode
+    app.run(host=host, port=port, debug=True)

@@ -90,7 +90,8 @@ project_root/
 
 1. [Install](https://www.python.org/downloads/) Python on your computer. *Recommended versions are 3.9.x through 3.11.x, Some snowflake libraries balk with 3.12*
 
-2. [Install](https://docs.docker.com/desktop/) Docker on your computer
+2. [Install](https://docs.docker.com/desktop/) Docker on your computer, and postgresDB as well.
+
 3. **Clone** the Repository: `git clone https://github.com/knail2/secure-agent-augmentation.git`
 
 4. **Switch** into the directory: `cd secure-agent-framework`
@@ -129,7 +130,17 @@ TOKEN_EXPIRY_SECONDS=3600
 
 11. (for localhost testing only) Run Jupyter Lab: `jupyter lab` and fire up `notebooks/admin_and_client_demo.ipynb` to test the various APIs in this run-time framework.
 
-12. Running the server on Docker :construction:
+12. Set up database and local user 
+```
+psql -U postgres
+<provide password you provided at install>
+CREATE DATABASE agent_actions_auth_db;          // this is the user in .env
+CREATE USER auth_db_user WITH PASSWORD 'x';     // this is the pass in .env
+// agent_actions_auth_db is the database in .env
+GRANT ALL PRIVILEGES ON DATABASE agent_actions_auth_db TO auth_db_user;
+```
+
+13. Running the server on Docker :construction:
 
 ## :construction: Deploying on Heroku
 
