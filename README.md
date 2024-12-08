@@ -128,19 +128,15 @@ TOKEN_EXPIRY_SECONDS=3600
 10. Run the server (locally)
 ``uvicorn src.api_server.main:app –reload``
 
-11. (for localhost testing only) Run Jupyter Lab: `jupyter lab` and fire up `notebooks/admin_and_client_demo.ipynb` to test the various APIs in this run-time framework.
 
-12. Set up database and local user 
-```
-psql -U postgres
-<provide password you provided at install>
-CREATE DATABASE agent_actions_auth_db;          // this is the user in .env
-CREATE USER auth_db_user WITH PASSWORD 'x';     // this is the pass in .env
-// agent_actions_auth_db is the database in .env
-GRANT ALL PRIVILEGES ON DATABASE agent_actions_auth_db TO auth_db_user;
-```
+12. Set up database and local user, just run `run.sh`
+the script attempts to log into the local postgres db (you may need to provide admin creds), and checks to see if user/password and db exist, and if not, then it creates them, and binds the user to the db, and starts the app.
 
-13. Running the server on Docker :construction:
+
+12. (for localhost testing only) Run Jupyter Lab: `jupyter lab` and fire up `notebooks/admin_and_client_demo.ipynb` to test the various APIs in this run-time framework.
+
+
+## :construction: Running the server on Docker 
 
 ## :construction: Deploying on Heroku
 
