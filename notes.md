@@ -4,7 +4,7 @@
 - oidc [debugger](https://oidcdebugger.com/)
 - json web token [decoder](https://jwt.io/)
 
-- automated postgresql [install](https://chatgpt.com/c/67601f34-f45c-8010-bfb3-400a9a25dfaf) on the mac 
+- automated postgresql [install](https://chatgpt.com/share/67601fa4-42c8-8010-892d-5d2ce8995aff) on the mac 
 
 ## Considering directory structure:
 
