@@ -92,14 +92,35 @@ project_root/
 
 2. [Install](https://docs.docker.com/desktop/) Docker on your computer, and postgresDB as well.
 
-3. **Clone** the Repository: `git clone https://github.com/knail2/secure-agent-augmentation.git`
+3. **Install uv**: 
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
 
-4. **Switch** into the directory: `cd secure-agent-framework`
-5. Create a **virtual environment**: `python -m venv venv`
-We do this so that the libraries are safely installed for the context of this project, and don't mess with potentially the same libraries installed globally on your machine. We use the python [virtual environment](https://docs.python.org/3/library/venv.html) concept.
-6. **Activate** the virtual environment: `. ./venv/bin/activate`.
-It should show venv in the cli prompt, e.g. `(venv) tcm secure-agent-augmentation$ `
-7. Install required **libraries** into this env: `pip install -r requirements.txt`
+4. **Clone** the Repository: 
+```bash
+git clone https://github.com/knail2/secure-agent-augmentation.git
+```
+
+5. **Switch** into the directory and create virtual environment:
+```bash
+cd secure-agent-augmentation
+uv venv
+```
+
+6. **Activate** the virtual environment:
+```bash
+source .venv/bin/activate  # On Unix/macOS
+# or
+.venv\Scripts\activate  # On Windows
+```
+
+7. **Install dependencies**:
+```bash
+uv pip install -e ".[dev]"  # Install with development dependencies
+# or
+uv pip install -e .  # Install only runtime dependencies
+```
 8. **Create Public and Private keys**
 We will upload the private key into the auth server, and that dude will be using the private key to sign the (JWT) tokens that it will be issuing to the clients, which the clients could use to verify the authenticity of the tokens. (this is an added layer of security provided by the oauth2.0 RFC that we are implementing here)
     - For LOCAL:

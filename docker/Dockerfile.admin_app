@@ -7,8 +7,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential curl libpq-dev supervisor \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Copy project files and install dependencies
+COPY pyproject.toml .
+COPY README.md .
+RUN uv pip install --no-cache .
 
 COPY src/ /app/src/
 COPY docker/supervisord_admin.conf /etc/supervisor/conf.d/supervisord_admin.conf
